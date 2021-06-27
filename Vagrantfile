@@ -77,6 +77,11 @@ echo 'Environment="KUBELET_EXTRA_ARGS=--node-ip=10.0.0.10"' | sudo tee -a /etc/s
 # Configure cni plugin
 kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')
 
+# Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.0.4/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/kszpakowski/argo-apps/master/app-of-apps.yml
+
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
 SHELL
