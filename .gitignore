@@ -1,0 +1,4 @@
+join.sh
+.vagrant
+conf
+*.log
