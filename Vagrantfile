@@ -1,16 +1,15 @@
 Vagrant.configure("2") do |config|
-  config.vm.provider :virtualbox do |v|
-    v.memory = 2048
-    v.cpus = 2
-  end
-
+  config.vm.box = "ubuntu/xenial64"
   config.vm.provision :shell, privileged: true, inline: $install_common_tools
 
   config.vm.define :master do |master|
-    master.vm.box = "ubuntu/xenial64"
     master.vm.hostname = "master"
     master.vm.network :private_network, ip: "10.0.0.10"
     master.vm.provision :shell, privileged: false, inline: $provision_master_node
+    master.vm.provider :virtualbox do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
   end
 
   %w{worker1 worker2 worker3}.each_with_index do |name, i|
@@ -18,6 +17,10 @@ Vagrant.configure("2") do |config|
       worker.vm.box = "ubuntu/xenial64"
       worker.vm.hostname = name
       worker.vm.network :private_network, ip: "10.0.0.#{i + 11}"
+      worker.vm.provider :virtualbox do |v|
+        v.memory = 4096
+        v.cpus = 2
+      end
       worker.vm.provision :shell, privileged: false, inline: <<-SHELL
 sudo /vagrant/join.sh
 echo 'Environment="KUBELET_EXTRA_ARGS=--node-ip=10.0.0.#{i + 11}"' | sudo tee -a /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
